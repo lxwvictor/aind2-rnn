@@ -37,18 +37,26 @@ def window_transform_series(series,window_size):
 
 # TODO: build an RNN to perform regression on our time series input/output data
 def build_part1_RNN(step_size, window_size):
-    model = Sequential()
-    model.add(LSTM(5, input_shape=(window_size,1)))
-    model.add(Dense(1, activation='linear'))
+    from keras.models import Sequential
+    from keras.layers import Dense, Activation, LSTM
+    from keras.optimizers import RMSprop
+    from keras.utils.data_utils import get_file
+    import keras
+    import random
 
-    # build model using keras documentation recommended optimizer initialization
+    # TODO build the required RNN model: a single LSTM hidden layer with softmax activation, categorical_crossentropy loss 
+    np.random.seed(0)
+    model = Sequential()
+    model.add(LSTM(200, input_shape=(window_size,len(chars))))
+    model.add(Dense(len(chars)))
+    model.add(Activation("softmax"))
+    model.summary()
+
+    # initialize optimizer
     optimizer = keras.optimizers.RMSprop(lr=0.001, rho=0.9, epsilon=1e-08, decay=0.0)
 
-    # compile the model
-    model.compile(loss='mean_squared_error', optimizer=optimizer)
-
-    # run your model!
-    model.fit(X_train, y_train, epochs=1000, batch_size=50, verbose=0)
+    # compile model --> make sure initialized optimizer and callbacks - as defined above - are used
+    model.compile(loss='categorical_crossentropy', optimizer=optimizer)
     pass
 
 
@@ -79,15 +87,6 @@ def clean_text(text):
     text = text.replace('7', ' ')
     text = text.replace('8', ' ')
     text = text.replace('9', ' ')
-
-    unique_char = set(text)
-    #print(unique_char)
-    #print(len(unique_char))
-
-    word_list = text.split(" ")
-    #print(len(word_list))
-    unique_word = set(word_list)
-    #print(len(unique_word))
         
     # shorten any extra dead space created above
     text = text.replace('  ',' ')
